@@ -117,7 +117,9 @@ jobs:
           rm -rf utils
           
           git clone https://github.com/tomxi1997/lxc-docker-support-for-android.git utils
-          echo 'source "utils/Kconfig"' >> "Kconfig"
+          echo 'source "utils/Kconfig"' >> "Kconfig" 
+          
+          pwd && ls arch/arm64/configs
 
           echo "CONFIG_DOCKER=y" >> $GITHUB_WORKSPACE/android-kernel/arch/arm64/configs/gki_defconfig
           sed -i '/CONFIG_ANDROID_PARANOID_NETWORK/d' $GITHUB_WORKSPACE/android-kernel/arch/arm64/configs/gki_defconfig
