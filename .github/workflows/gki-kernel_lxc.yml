@@ -110,9 +110,30 @@ jobs:
           repo --version
           repo --trace sync -c -j$(nproc --all) --no-tags
           df -h
-      - name: setup lxc
+          
+      - name: Setup LXC
         run: |
-          echo "attemp to add lxc support"
+          cd $GITHUB_WORKSPACE/android-kernel
+          rm -rf utils
+          git clone https://github.com/tomxi1997/lxc-docker-support-for-android.git utils
+          echo 'source "utils/Kconfig"' >> "Kconfig"
+
+          echo "CONFIG_DOCKER=y" >> arch/arm64/configs/gki_defconfig
+          sed -i '/CONFIG_ANDROID_PARANOID_NETWORK/d' arch/arm64/configs/gki_defconfig
+          echo "# CONFIG_ANDROID_PARANOID_NETWORK is not set" >> arch/arm64/configs/gki_defconfig
+          
+          chmod +x $GITHUB_WORKSPACE/android-kernel/utils/runcpatch.sh
+          if [ -f $GITHUB_WORKSPACE/android-kernel/kernel/cgroup/cgroup.c ]; then
+            sh $GITHUB_WORKSPACE/android-kernel/utils/runcpatch.sh $GITHUB_WORKSPACE/android-kernel/kernel/cgroup/cgroup.c
+          fi
+          
+          if [ -f $GITHUB_WORKSPACE/android-kernel/kernel/cgroup.c ]; then
+            sh $GITHUB_WORKSPACE/android-kernel/utils/runcpatch.sh $GITHUB_WORKSPACE/android-kernel/kernel/cgroup.c
+          fi
+
+          if [ -f $GITHUB_WORKSPACE/android-kernel/net/netfilter/xt_qtaguid.c ]; then
+            patch -p0 < $GITHUB_WORKSPACE/android-kernel/utils/xt_qtaguid.patch
+          fi
           
       - name: Setup KernelSU
         env:
