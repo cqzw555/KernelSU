@@ -1,4 +1,4 @@
-name: GKI Kernel Build
+name: GKI Kernel Build with lxc
 
 on:
   workflow_call:
